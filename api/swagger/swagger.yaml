@@ -1,0 +1,167 @@
+swagger: "2.0"
+
+info:
+  version: 0.0.1
+  title: OFB app API 
+  description: API for connecting the mobile app with the information in the OFB website.
+
+schemes:
+  - http
+host: localhost:10010
+basePath: /
+
+
+definitions:
+  
+  Event:
+  
+    required:
+      - date
+      - start_time
+      - entry
+      - location
+      - description
+      - title
+    
+    properties:
+      date:
+        type: string
+      start_time:
+        type: string
+      entry:
+        type: string
+      location:
+        type: string
+      description:
+        type: string
+      title:
+        type: string
+  
+  Events:
+  
+    type: array
+    items:
+      $ref: "#/definitions/Event"
+  
+  News_Post:
+  
+    required:
+      - date
+      - title
+      - content
+      - image
+    
+    properties:
+      date:
+        type: string
+      title:
+        type: string
+      content:
+        type: string
+      image:
+        type: object
+
+
+paths:
+  
+  /eventos:
+    x-swagger-router-controller: events_controller
+    
+    get:
+      summary: gets some events.
+      operationId: getEventsByDate
+      description: Returns the events hosted in the given date.
+      
+      parameters:
+        - name: date
+          required: false
+          in: query
+          type: string
+          description: A string containing a date in the dd-mm-yyyy format.
+      
+      responses:
+        200:
+          description: A list of events.
+          schema:
+            $ref: "#/definitions/Events"
+        
+        404:
+          description: The date is not correct.
+  
+  
+  /eventos/{event}:
+    x-swagger-router-controller: events_controller
+    
+    get:
+      summary: Gets an event.
+      operationId: getEventByName
+      description: Returns a specific event.
+      
+      parameters:
+        - name: event
+          in: path
+          required: true
+          type: string
+          description: The specific name of the event.
+    
+      responses:
+        200:
+          description: An event.
+          schema:
+            $ref: "#/definitions/Event"
+        
+        404:
+          description: The event doesn't exist.
+  
+  
+  /eventos/mes/{month}:
+    x-swagger-router-controller: events_controller
+    
+    get:
+      summary: Gets a list of events
+      operationId: getEventsByMonth
+      description: Gets the events being hosted in the specified month.
+      
+      parameters:
+        - name: month
+          in: path
+          required: true
+          type: string
+          description: The month in spanish.
+        
+        - name: year
+          in: query
+          required: false
+          type: integer
+          description: The year for the specified month.
+      
+      responses:
+        200:
+          description: A list of events.
+          schema:
+            $ref: "#/definitions/Events"
+        
+        404:
+          description: Couldn't get a response related to the month.
+        
+        500:
+          description: The month is not correct.
+  
+  /{news_post}:
+  
+    get:
+      summary: Gets a news post
+      description: Gets the content related to the desired the news post.
+    
+      parameters:
+        - name: news_post
+          in: path
+          required: true
+          type: string
+          description: The title of the news post.
+      
+      responses:
+        200:
+          description: The news post content and information.
+          schema:
+            $ref: "#/definitions/News_Post"
